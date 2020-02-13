@@ -1,24 +1,50 @@
 import 'package:flutter/material.dart';
 
+import '../models/recipe.dart';
 import './../widgets/recipe_item.dart';
 import '../dummy_data.dart';
 
-import './../dummy_data.dart';
-
-class CategoryRecipeScreen extends StatelessWidget {
+class CategoryRecipeScreen extends StatefulWidget {
   static const routeName = '/category-meals';
 
   @override
+  _CategoryRecipeScreenState createState() => _CategoryRecipeScreenState();
+}
+
+class _CategoryRecipeScreenState extends State<CategoryRecipeScreen> {
+  String categoryTitle;
+  List<Recipe> displayedRecipe;
+  var _loadedInitData = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void _removeMeal(String recipeId) {
+    setState(() {
+      displayedRecipe.removeWhere((recipe) => recipe.id == recipeId);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (!_loadedInitData) {
+      final routeArgs =
+          ModalRoute.of(context).settings.arguments as Map<String, String>;
+
+      categoryTitle = routeArgs['title'];
+      final categoryId = routeArgs['id'];
+      displayedRecipe = DUMMY_RECIPES.where((recipe) {
+        return recipe.categories.contains(categoryId);
+      }).toList();
+      _loadedInitData = true;
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final routeArgs =
-        ModalRoute.of(context).settings.arguments as Map<String, String>;
-
-    final categoryTitle = routeArgs['title'];
-    final categoryId = routeArgs['id'];
-    final categoryRecipes = DUMMY_RECIPES.where((recipe) {
-      return recipe.categories.contains(categoryId);
-    }).toList();
-
     return Scaffold(
       appBar: AppBar(
         title: Text(categoryTitle),
@@ -26,15 +52,16 @@ class CategoryRecipeScreen extends StatelessWidget {
       body: ListView.builder(
         itemBuilder: (ctx, index) {
           return MealItem(
-            id: categoryRecipes[index].id,
-            title: categoryRecipes[index].title,
-            imageUrl: categoryRecipes[index].imageUrl,
-            duration: categoryRecipes[index].duration,
-            complexity: categoryRecipes[index].complexity,
-            affordability: categoryRecipes[index].affordability,
+            id: displayedRecipe[index].id,
+            title: displayedRecipe[index].title,
+            imageUrl: displayedRecipe[index].imageUrl,
+            duration: displayedRecipe[index].duration,
+            complexity: displayedRecipe[index].complexity,
+            affordability: displayedRecipe[index].affordability,
+            removeItem: _removeMeal,
           );
         },
-        itemCount: categoryRecipes.length,
+        itemCount: displayedRecipe.length,
       ),
     );
   }
