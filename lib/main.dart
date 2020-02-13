@@ -25,6 +25,7 @@ class _MyAppState extends State<MyApp> {
   };
 
   List<Recipe> _availableRecipes = DUMMY_RECIPES;
+  List<Recipe> _favoriteRecipes = [];
 
   void _setFilters(Map<String, bool> filterData){
     setState(() {
@@ -45,6 +46,24 @@ class _MyAppState extends State<MyApp> {
         return true;
       }).toList();
     });
+  }
+
+  void _toggleFavorite(String recipeId){
+    final existingIndex = _favoriteRecipes.indexWhere((recipe) => recipe.id == recipeId);
+
+    if (existingIndex >= 0){
+      setState(() {
+        _favoriteRecipes.removeAt(existingIndex);
+      });
+    } else {
+      setState(() {
+        _favoriteRecipes.add(DUMMY_RECIPES.firstWhere((recipe) => recipe.id == recipeId));
+      });
+    }
+  }
+
+  bool _isRecipeFavorite(String id){
+    return _favoriteRecipes.any((recipe) => recipe.id == id);
   }
 
   @override
@@ -73,9 +92,9 @@ class _MyAppState extends State<MyApp> {
       //home: CategoriesScreen(),
       initialRoute: "/",
       routes: {
-        "/": (ctx) => TabsScreen(),   //this is the home route
+        "/": (ctx) => TabsScreen(_favoriteRecipes),   //this is the home route
         CategoryRecipeScreen.routeName: (ctx) => CategoryRecipeScreen(_availableRecipes),
-        RecipeDetailsScreen.routeName: (ctx) => RecipeDetailsScreen(),
+        RecipeDetailsScreen.routeName: (ctx) => RecipeDetailsScreen(_toggleFavorite, _isRecipeFavorite),
         FiltersScreen.routeName: (ctx) => FiltersScreen(_filters, _setFilters),
       },
       onUnknownRoute: (settings) {
