@@ -12,7 +12,7 @@ class FavoritesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     if (favoriteRecipes.isEmpty) {
       return Center(
-        child: Text('You have no favorites!'),
+        child: Text('You have no favorites yet!'),
       );
     }else {
       return ListView.builder(
