@@ -5,6 +5,11 @@ import '../widgets/main_drawer.dart';
 class FiltersScreen extends StatefulWidget {
   static const routeName = '/fliters';
 
+  final Function saveFilters;
+  final Map<String, bool> currentFilter;
+
+  FiltersScreen(this.currentFilter ,this.saveFilters);
+
   @override
   _FiltersScreenState createState() => _FiltersScreenState();
 }
@@ -14,6 +19,15 @@ class _FiltersScreenState extends State<FiltersScreen> {
   bool _vegetarian = false;
   bool _vegan = false;
   bool _lactoseFree = false;
+
+  @override
+  initState(){
+    _glutenFree = widget.currentFilter['gluten'];
+    _vegan = widget.currentFilter['vegan'];
+    _vegetarian = widget.currentFilter['vegetarian'];
+    _lactoseFree = widget.currentFilter['lactose'];
+    super.initState();
+  }
 
   Widget _buildSwitchListTile(String title, String description,
       bool currentValue, Function updateValue) {
@@ -30,6 +44,19 @@ class _FiltersScreenState extends State<FiltersScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Your Filters'),
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.save),
+              onPressed: () {
+                final selectedFilters = {
+                  "gluten": _glutenFree,
+                  'vegan': _vegan,
+                  'vegetarian': _vegetarian,
+                  'lactose': _lactoseFree,
+                };
+                widget.saveFilters(selectedFilters);
+              })
+        ],
       ),
       drawer: MainDrawer(),
       body: Column(
